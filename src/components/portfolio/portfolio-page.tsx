@@ -163,17 +163,25 @@ export function PortfolioPage({ data }: Props) {
         <div className="grid md:grid-cols-2 gap-6">
           {data.projects.map((project, index) => (
             <Card key={project._id} className="group p-8 border-ink rounded-2xl bg-card hover:shadow-card transition-all duration-300 hover:-translate-y-1">
-              {project.image && (
+              {(() => {
+                if (!project.image) return null;
+                const imageBuilder = urlFor(project.image);
+                if (!imageBuilder) return null;
+                const imageUrl = imageBuilder.width(900).height(600).fit("crop").url();
+                if (!imageUrl) return null;
+
+                return (
                 <div className="mb-4 overflow-hidden rounded-xl border border-border">
                   <Image
-                    src={urlFor(project.image).width(900).height(600).fit("crop").url()}
+                    src={imageUrl}
                     alt={project.title}
                     width={900}
                     height={600}
                     className="h-48 w-full object-cover"
                   />
                 </div>
-              )}
+                );
+              })()}
               <div className="flex items-start justify-between mb-4">
                 <span className="text-xs font-mono text-primary">0{index + 1}</span>
                 <ArrowUpRight className="h-5 w-5 text-foreground/40 group-hover:text-primary group-hover:rotate-12 transition-all" />
