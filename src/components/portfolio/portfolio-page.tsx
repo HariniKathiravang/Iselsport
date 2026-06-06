@@ -114,14 +114,16 @@ export function PortfolioPage({ data }: Props) {
             <Badge variant="outline" className="mb-5 bg-background/80 border-ink rounded-full px-4 py-1.5 text-xs font-semibold">
               {data.about?.availabilityBadge}
             </Badge>
-            <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-semibold leading-[0.95] tracking-tight text-foreground mb-5">
-              {firstName}
-              <br />
-              <span className="italic text-primary">{lastName}</span>
-            </h1>
-            <p className="text-lg md:text-2xl text-foreground/75 max-w-2xl mb-8 leading-relaxed">
-              {data.about?.roleSummary}
-            </p>
+            <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-semibold leading-[0.95] tracking-tight mb-5">
+  <span className="inline-block bg-white/90 text-black px-4 py-2 rounded-xl">
+    {firstName}
+    <br />
+    <span className="italic text-primary">{lastName}</span>
+  </span>
+</h1>
+<p className="inline-block bg-white/85 text-black px-4 py-3 rounded-xl text-lg md:text-2xl max-w-2xl mb-8 leading-relaxed">
+  {data.about?.roleSummary}
+</p>
             <div className="flex flex-wrap gap-3">
               <Button asChild size="lg" className="rounded-full shadow-soft">
                 <Link href="/projects">
