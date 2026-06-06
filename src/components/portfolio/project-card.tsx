@@ -12,7 +12,7 @@ type Props = {
 
 export function ProjectCard({ project, index, showLinks = false }: Props) {
   return (
-    <Card className="group p-8 border-ink rounded-2xl bg-card hover:shadow-card transition-all duration-300 hover:-translate-y-1">
+    <Card className="group p-6 md:p-8 border-ink rounded-2xl bg-card hover:shadow-card transition-all duration-300">
       {project.image && (
         <div className="mb-4 overflow-hidden rounded-xl border border-border">
           <SanityImage

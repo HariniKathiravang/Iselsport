@@ -1,81 +1,201 @@
-# Portfolio Website (Next.js + Sanity + Vercel)
+# Iselsport Portfolio
 
-This project is now structured as a **production-ready portfolio**:
-- Next.js (App Router)
-- Sanity CMS (hosted content management)
-- Vercel deployment ready
-- EmailJS contact form (no custom backend needed)
-
-All portfolio content (about, projects, skills, contact, and more) comes from Sanity.  
-No portfolio text/projects/images are hardcoded in page data.
+A production-ready personal portfolio built with **Next.js 15 (App Router)**, **Sanity CMS**, **Tailwind CSS**, and **shadcn/ui**. All portfolio content is managed in Sanity and rendered through typed GROQ queries. The site uses a rose/pink visual theme with card-based sections, dedicated subpages, and ISR caching for fast updates after CMS publishes.
 
 ---
 
-## 1) Full File Structure
+## Architecture Overview
 
-```text
-portfoliofrontendsample/
-├─ src/
-│  ├─ app/
-│  │  ├─ api/
-│  │  │  └─ revalidate/
-│  │  │     └─ route.ts
-│  │  ├─ studio/
-│  │  │  └─ [[...tool]]/
-│  │  │     └─ page.tsx
-│  │  ├─ globals.css
-│  │  ├─ layout.tsx
-│  │  └─ page.tsx
-│  ├─ components/
-│  │  ├─ portfolio/
-│  │  │  ├─ portfolio-page.tsx
-│  │  │  └─ section.tsx
-│  │  └─ ui/
-│  │     └─ ...existing reusable UI components
-│  ├─ lib/
-│  │  ├─ utils.ts
-│  │  └─ sanity/
-│  │     ├─ client.ts
-│  │     ├─ env.ts
-│  │     ├─ image.ts
-│  │     ├─ queries.ts
-│  │     └─ types.ts
-│  └─ sanity/
-│     └─ schemaTypes/
-│        ├─ aboutSection.ts
-│        ├─ contactInfo.ts
-│        ├─ project.ts
-│        ├─ siteSettings.ts
-│        ├─ skills.ts
-│        └─ index.ts
-├─ sanity.config.ts
-├─ sanity.cli.ts
-├─ next.config.ts
-├─ tailwind.config.ts
-├─ .env.example
-└─ README.md
+```
+Browser request
+      │
+      ▼
+Next.js App Router (src/app)
+      │
+      ├── Server Components fetch data via sanityFetch()
+      │         │
+      │         ▼
+      │   GROQ queries (src/lib/sanity/queries.ts)
+      │         │
+      │         ▼
+      │   Sanity CDN (published content, 60s revalidate)
+      │
+      ├── Client Components (header, homepage form)
+      │
+      └── Sanity Studio (/studio) for content editing
 ```
 
----
+**Key design choices**
 
-## 2) Prerequisites
-
-### Required software
-- Node.js **20 LTS** or newer
-- npm (comes with Node)
-- Git
-
-### Required accounts
-- [Sanity](https://www.sanity.io/)
-- [Vercel](https://vercel.com/)
-- [EmailJS](https://www.emailjs.com/)
-- GitHub (for deployment workflow)
+- **Server-first rendering**: Pages fetch Sanity data on the server and pass typed props to components.
+- **Single source of truth**: No hardcoded portfolio content; text, images, and links come from Sanity documents.
+- **ISR + tag revalidation**: Pages revalidate every 60 seconds; `/api/revalidate` can force a refresh after CMS publishes.
+- **Shared layout primitives**: Header, footer, section wrappers, and page banners keep all routes visually consistent.
 
 ---
 
-## 3) Environment Variables
+## Routing Overview
 
-Create a `.env.local` file in the project root:
+Routes are defined by the Next.js App Router file structure under `src/app/`.
+
+| Route | File | Description |
+|-------|------|-------------|
+| `/` | `src/app/page.tsx` | Homepage — hero, section previews, skills, contact |
+| `/about` | `src/app/about/page.tsx` | Full about page with banner, bio, education |
+| `/projects` | `src/app/projects/page.tsx` | All projects with GitHub and live demo links |
+| `/certifications` | `src/app/certifications/page.tsx` | Certification badge cards |
+| `/studio` | `src/app/studio/[[...tool]]/page.tsx` | Embedded Sanity Studio |
+| `/api/revalidate` | `src/app/api/revalidate/route.ts` | Webhook endpoint for cache invalidation |
+
+**Navigation behavior** (`src/components/portfolio/site-header.tsx`)
+
+| Nav item | Destination |
+|----------|-------------|
+| About | `/about` |
+| Projects | `/projects` |
+| Certifications | `/certifications` |
+| Skills | `/#skills` (homepage anchor) |
+| Contact | `/#contact` (homepage anchor) |
+
+---
+
+## Where to Find Things
+
+### Pages
+
+| Page | Entry file | Main UI |
+|------|------------|---------|
+| Home | `src/app/page.tsx` | `src/components/portfolio/portfolio-page.tsx` |
+| About | `src/app/about/page.tsx` | Inline layout + `PageBanner` |
+| Projects | `src/app/projects/page.tsx` | `ProjectCard` grid |
+| Certifications | `src/app/certifications/page.tsx` | Badge card grid |
+
+### Shared portfolio components
+
+| Component | Path | Purpose |
+|-----------|------|---------|
+| `SiteHeader` | `src/components/portfolio/site-header.tsx` | Sticky navbar with routing links |
+| `SiteFooter` | `src/components/portfolio/site-footer.tsx` | Copyright and tagline |
+| `Section` | `src/components/portfolio/section.tsx` | Titled content section with border separation |
+| `PageBanner` | `src/components/portfolio/page-banner.tsx` | Subpage header; optional Sanity banner image |
+| `ProjectCard` | `src/components/portfolio/project-card.tsx` | Project display card |
+| `SanityImage` | `src/components/portfolio/sanity-image.tsx` | Sanity image URL builder + `next/image` |
+| `BackLink` | `src/components/portfolio/back-link.tsx` | Consistent return link on subpages |
+
+### UI primitives (shadcn/ui)
+
+Reusable low-level components live in `src/components/ui/` — buttons, cards, inputs, badges, etc. Portfolio components compose these.
+
+### Global styles and theme
+
+| File | Purpose |
+|------|---------|
+| `src/app/globals.css` | CSS variables, rose palette, utility classes (`.gradient-hero`, `.border-ink`, `.shadow-soft`) |
+| `tailwind.config.ts` | Tailwind theme extensions |
+| `src/app/layout.tsx` | Root layout, Inter + Fraunces fonts |
+
+---
+
+## Sanity Integration
+
+### Schema files (`src/sanity/schemaTypes/`)
+
+| Schema | File | Used for |
+|--------|------|----------|
+| `aboutSection` | `aboutSection.ts` | Hero text, bio, education, profile/banner/professional photos |
+| `project` | `project.ts` | Project title, stack, description, image, repo/live URLs |
+| `certification` | `certification.ts` | Badge image, title, issuer, optional link |
+| `skills` | `skills.ts` | Skill categories and items |
+| `contactInfo` | `contactInfo.ts` | Contact form section, email, social links |
+| `siteSettings` | `siteSettings.ts` | Site name, hero buttons, footer, leadership, languages |
+
+Registered in `src/sanity/schemaTypes/index.ts`.
+
+### Client and configuration
+
+| File | Purpose |
+|------|---------|
+| `src/lib/sanity/client.ts` | `sanityFetch()` read client with ISR tags |
+| `src/lib/sanity/env.ts` | Server-side env validation (`SANITY_PROJECT_ID`, dataset) |
+| `src/lib/sanity/image.ts` | `urlFor()` helper for Sanity CDN image URLs |
+| `src/lib/sanity/types.ts` | TypeScript types mirroring schemas |
+| `src/lib/sanity/queries.ts` | GROQ queries for each page |
+| `sanity.config.ts` | Studio configuration |
+| `sanity.cli.ts` | Sanity CLI configuration |
+
+### Content flow
+
+1. Content is created and **published** in Sanity Studio (`/studio`).
+2. Server pages call `sanityFetch()` with a GROQ query and cache tag `"portfolio"`.
+3. Responses are typed via `src/lib/sanity/types.ts`.
+4. Images are rendered through `urlFor()` → `SanityImage` or `PageBanner`.
+5. After publishing, changes appear within 60 seconds, or immediately after calling the revalidate API.
+
+### GROQ queries
+
+| Query | Used by |
+|-------|---------|
+| `portfolioQuery` | Homepage — fetches all sections in one request |
+| `aboutQuery` | About page |
+| `projectsQuery` | Projects page |
+| `certificationsQuery` | Certifications page |
+| `siteMetaQuery` | Subpages — site name, footer, contact email for header/footer |
+
+### Image fields
+
+| Field | Document | Rendered on |
+|-------|----------|-------------|
+| `profilePhoto` | `aboutSection` | Homepage hero background banner |
+| `bannerImage` | `aboutSection` | About page header banner |
+| `professionalPhoto` | `aboutSection` | About page sidebar |
+| `image` | `project` | Project cards |
+| `badge` | `certification` | Certification badge cards |
+
+---
+
+## Debugging Guide
+
+### UI issues
+
+| Symptom | Check |
+|---------|-------|
+| Hero banner image missing | `aboutSection.profilePhoto` in Sanity; `NEXT_PUBLIC_SANITY_PROJECT_ID` set; `src/components/portfolio/portfolio-page.tsx` hero section |
+| About banner not showing | `aboutSection.bannerImage`; `src/components/portfolio/page-banner.tsx` |
+| Section titles have trailing punctuation | `src/lib/format-section-title.ts` |
+| Layout/spacing inconsistent | `src/components/portfolio/section.tsx`, `globals.css` |
+| Cards look wrong | `src/components/portfolio/project-card.tsx`, `src/components/ui/card.tsx` |
+
+### Routing issues
+
+| Symptom | Check |
+|---------|-------|
+| 404 on subpage | File exists under `src/app/<route>/page.tsx` |
+| Nav link goes nowhere | `src/components/portfolio/site-header.tsx` `navItems` |
+| Skills/Contact anchor broken | Homepage section IDs `#skills` and `#contact` in `portfolio-page.tsx` |
+
+### Sanity data issues
+
+| Symptom | Check |
+|---------|-------|
+| Build fails: missing env | `SANITY_PROJECT_ID` in `.env.local` / Vercel env vars |
+| Content not updating | Document published? Wait 60s or `POST /api/revalidate?token=...` |
+| Images not loading | `NEXT_PUBLIC_SANITY_PROJECT_ID`; `next.config.ts` `remotePatterns` for `cdn.sanity.io` |
+| Empty certifications | Create `certification` documents (not the legacy string list in `siteSettings`) |
+| Type errors after schema change | Update `src/lib/sanity/types.ts` and `queries.ts` |
+
+### Styling issues
+
+| Symptom | Check |
+|---------|-------|
+| Pink theme wrong | `src/app/globals.css` CSS variables (`--primary`, `--rose-*`) |
+| Borders too faint | `.border-ink` in `globals.css` |
+| Font issues | `src/app/layout.tsx` font imports |
+
+---
+
+## Environment Variables
+
+Create `.env.local` in the project root (see `.env.example`):
 
 ```env
 SANITY_PROJECT_ID=your_project_id
@@ -83,197 +203,136 @@ SANITY_DATASET=production
 SANITY_API_VERSION=2026-04-01
 SANITY_API_WRITE_TOKEN=your_write_token
 SANITY_REVALIDATE_TOKEN=your_random_secret
-NEXT_PUBLIC_EMAILJS_SERVICE_ID=your_emailjs_service_id
-NEXT_PUBLIC_EMAILJS_TEMPLATE_ID=your_emailjs_template_id
-NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=your_emailjs_public_key
+
+NEXT_PUBLIC_SANITY_PROJECT_ID=your_project_id
+NEXT_PUBLIC_SANITY_DATASET=production
+
+NEXT_PUBLIC_EMAILJS_SERVICE_ID=your_service_id
+NEXT_PUBLIC_EMAILJS_TEMPLATE_ID=your_template_id
+NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=your_public_key
 ```
 
-Where to get each value:
-- `SANITY_PROJECT_ID`: Sanity project settings
-- `SANITY_DATASET`: use exactly `production`
-- `SANITY_API_VERSION`: keep as `2026-04-01` (stable date-based versioning)
-- `SANITY_API_WRITE_TOKEN`: Sanity API token with **Editor** access (not Viewer)
-- `SANITY_REVALIDATE_TOKEN`: any long secret string you create yourself
-- `NEXT_PUBLIC_EMAILJS_*`: EmailJS dashboard (service, template, public key)
-
-For Vercel: set the same variables in **Project Settings -> Environment Variables**.
+| Variable | Required | Purpose |
+|----------|----------|---------|
+| `SANITY_PROJECT_ID` | Yes (server) | Sanity API access during build and SSR |
+| `NEXT_PUBLIC_SANITY_PROJECT_ID` | Yes (client) | Studio and client-side image URLs |
+| `SANITY_DATASET` | Yes | Must be `production` |
+| `SANITY_REVALIDATE_TOKEN` | For webhooks | Secures `/api/revalidate` |
+| `NEXT_PUBLIC_EMAILJS_*` | For contact form | EmailJS integration on homepage |
 
 ---
 
-## 4) Local Setup (Beginner Friendly)
+## Setup and Development
 
-### Step A: Install dependencies
+### Prerequisites
+
+- Node.js 20+
+- npm
+- Sanity, Vercel, and EmailJS accounts
+
+### Install and run
+
 ```bash
 npm install
-```
-
-### Step B: Run the app
-```bash
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000).
 
-### Step C: Open Sanity Studio
-Visit [http://localhost:3000/studio](http://localhost:3000/studio) and log in with your Sanity account.
+- Site: [http://localhost:3000](http://localhost:3000)
+- Studio: [http://localhost:3000/studio](http://localhost:3000/studio)
 
-### Step D: Add your content in Studio
-Create/fill documents:
-1. **About Section**
-2. **Projects** (multiple documents)
-3. **Skills**
-4. **Contact Info**
-5. **Site Settings** (extra settings used by this UI)
+### Build and lint
 
-Publish each document.
-
----
-
-## 5) Sanity Schema Setup (Already Added)
-
-The project includes these schemas:
-- `project`
-- `aboutSection`
-- `skills`
-- `contactInfo`
-- `siteSettings` (additional UI content)
-
-They are registered in `src/sanity/schemaTypes/index.ts`.
-
-Studio config is in:
-- `sanity.config.ts`
-- `sanity.cli.ts`
-
-### Important anti-bug settings
-- Dataset is set to `production` by default
-- API version is date-based (`2026-04-01`)
-- Public read client uses `perspective: "published"` to avoid draft-only confusion
-- Secure write token is separate (`SANITY_API_WRITE_TOKEN`)
-
----
-
-## 6) Data Fetching + ISR (How Updates Reach Vercel)
-
-### Where ISR is configured
-- `src/app/page.tsx` has:
-  - `export const revalidate = 60`
-- `src/lib/sanity/client.ts` also fetches with:
-  - `next: { revalidate: 60, tags: ["portfolio"] }`
-
-### Revalidate endpoint
-- `src/app/api/revalidate/route.ts`
-- Trigger URL format:
-  - `POST /api/revalidate?token=SANITY_REVALIDATE_TOKEN`
-- It calls `revalidateTag("portfolio")`
-
-This prevents the “Vercel not updating after CMS change” issue.
-
----
-
-## 7) EmailJS Contact Form
-
-Implemented in `src/components/portfolio/portfolio-page.tsx`.
-
-How it works:
-- User fills name/email/message
-- Browser calls EmailJS directly
-- Message is delivered to your configured email template
-- No custom backend is required
-
-Before using it:
-1. Create EmailJS service
-2. Create EmailJS template with params:
-   - `from_name`
-   - `from_email`
-   - `message`
-3. Add IDs and public key to env vars
-
----
-
-## 8) Admin Control (Only You Can Edit)
-
-Public users:
-- Can only read published content via Next frontend
-- Cannot access write APIs/tokens
-
-You (admin):
-- Edit via `/studio`
-- Must log in to Sanity
-- Must have project role with write permissions
-
-If your role is Viewer, publish/delete will be disabled.
-
----
-
-## 9) Deployment to Vercel
-
-### Step A: Push to GitHub
 ```bash
-git add .
-git commit -m "Migrate portfolio to Next.js with Sanity CMS"
-git push origin main
+npm run build
+npm run lint
 ```
 
-### Step B: Import project in Vercel
-1. Open Vercel dashboard
-2. Click **Add New -> Project**
-3. Select your GitHub repository
+### Studio only (CLI)
 
-### Step C: Add environment variables in Vercel
-Copy all values from `.env.local` into Vercel project env vars.
-
-### Step D: Deploy
-Click **Deploy**.  
-After deployment, your site and Studio route (`/studio`) are live.
+```bash
+npm run studio
+```
 
 ---
 
-## 10) CMS Usage Guide
+## Deployment (Vercel)
 
-### Log in
-1. Open `yourdomain.com/studio`
-2. Sign in with your Sanity account
+1. Push the repository to GitHub.
+2. Import the project in Vercel.
+3. Add all environment variables from `.env.local`.
+4. Deploy — the site and `/studio` route will both be available.
 
-### Add/Edit/Delete content
-1. Open document type
-2. Edit fields
-3. Click **Publish**
-4. To remove content, use **Delete**
+### Cache revalidation
 
-### How publishing works
-- Draft = private working copy
-- Published = visible to website
-- This project fetches published content for visitors
+After publishing in Sanity, trigger:
 
----
+```
+POST /api/revalidate?token=YOUR_SANITY_REVALIDATE_TOKEN
+```
 
-## 11) Troubleshooting
-
-### A) Content not updating
-1. Confirm you clicked **Publish**
-2. Wait up to 60 seconds (ISR interval)
-3. Trigger revalidate endpoint:
-   - `POST /api/revalidate?token=YOUR_TOKEN`
-4. Check dataset is `production` everywhere
-
-### B) Publish button missing / read-only mode
-1. Confirm you are logged in
-2. Check role in Sanity project members
-3. Use role with write permissions (Editor/Admin)
-4. Ensure you are in the correct project/dataset
-
-### C) Environment variables not working
-1. Check names exactly (no typos)
-2. Restart local server after changing `.env.local`
-3. In Vercel, redeploy after adding/changing env vars
-4. Never wrap values with extra quotes unless needed
+This calls `revalidateTag("portfolio")` and refreshes all cached Sanity data.
 
 ---
 
-## 12) Key Files To Review First
+## File Tree (Quick Reference)
 
-- `src/app/page.tsx` (ISR entry + data render)
-- `src/lib/sanity/client.ts` (read/write clients + cache behavior)
-- `src/lib/sanity/queries.ts` (all content query)
-- `sanity.config.ts` (Studio setup)
-- `src/sanity/schemaTypes/*` (CMS models)
-- `src/components/portfolio/portfolio-page.tsx` (UI + EmailJS form)
+```text
+Iselsport/
+├── src/
+│   ├── app/
+│   │   ├── about/page.tsx              # About page
+│   │   ├── projects/page.tsx           # Projects page
+│   │   ├── certifications/page.tsx     # Certifications page
+│   │   ├── studio/[[...tool]]/page.tsx # Sanity Studio
+│   │   ├── api/revalidate/route.ts     # ISR webhook
+│   │   ├── globals.css                 # Theme and utilities
+│   │   ├── layout.tsx                  # Root layout
+│   │   └── page.tsx                    # Homepage entry
+│   ├── components/
+│   │   ├── portfolio/
+│   │   │   ├── portfolio-page.tsx      # Homepage UI
+│   │   │   ├── site-header.tsx         # Navbar
+│   │   │   ├── site-footer.tsx         # Footer
+│   │   │   ├── section.tsx             # Section wrapper
+│   │   │   ├── page-banner.tsx         # Subpage banner
+│   │   │   ├── project-card.tsx        # Project card
+│   │   │   ├── sanity-image.tsx        # Sanity image helper
+│   │   │   └── back-link.tsx           # Subpage back link
+│   │   └── ui/                         # shadcn/ui primitives
+│   ├── lib/
+│   │   ├── format-section-title.ts     # Title cleanup helper
+│   │   ├── utils.ts                    # cn() utility
+│   │   └── sanity/
+│   │       ├── client.ts               # Sanity fetch client
+│   │       ├── env.ts                  # Env validation
+│   │       ├── image.ts                # Image URL builder
+│   │       ├── queries.ts              # GROQ queries
+│   │       └── types.ts                # TypeScript types
+│   └── sanity/
+│       └── schemaTypes/                # Sanity document schemas
+├── sanity.config.ts
+├── sanity.cli.ts
+├── next.config.ts
+├── tailwind.config.ts
+├── .env.example
+└── README.md
+```
+
+---
+
+## CMS Content Checklist
+
+When setting up or debugging content in Studio, ensure these documents exist and are **published**:
+
+1. **About Section** — name, bio, photos (`profilePhoto`, `bannerImage`, `professionalPhoto`), education
+2. **Projects** — one document per project with image and URLs
+3. **Certifications** — one document per credential with badge image
+4. **Skills** — categories and skill items
+5. **Contact Info** — email, social links, contact section copy
+6. **Site Settings** — site name, footer, leadership, languages
+
+---
+
+## License
+
+Private portfolio project.

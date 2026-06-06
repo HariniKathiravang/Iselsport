@@ -14,9 +14,9 @@ import { SiteFooter } from "@/components/portfolio/site-footer";
 import { SiteHeader } from "@/components/portfolio/site-header";
 import type { PortfolioData } from "@/lib/sanity/types";
 import { Section } from "@/components/portfolio/section";
+import { formatSectionTitle } from "@/lib/format-section-title";
 import {
   ArrowUpRight,
-  Award,
   Brain,
   Code2,
   Database,
@@ -42,6 +42,7 @@ export function PortfolioPage({ data }: Props) {
   const firstName = data.about?.firstName ?? "";
   const lastName = data.about?.lastName ?? "";
   const fullName = `${firstName} ${lastName}`.trim();
+  const hasHeroImage = Boolean(data.about?.profilePhoto);
 
   const previewProjects = (data.projects ?? []).slice(0, 2);
   const previewCertifications = (data.certifications ?? []).slice(0, 3);
@@ -86,72 +87,75 @@ export function PortfolioPage({ data }: Props) {
         contactEmail={data.contact?.email}
       />
 
-      <section id="top" className="relative gradient-hero overflow-hidden">
-        <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-rose-bright/30 blur-3xl" />
-        <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-primary/20 blur-3xl" />
-        <div className="relative max-w-6xl mx-auto px-6 py-24 md:py-36">
-          <div className="grid md:grid-cols-[1fr_auto] gap-12 items-center">
-            <div className="max-w-3xl animate-fade-up">
-              <Badge variant="outline" className="mb-6 bg-background/80 border-ink rounded-full px-4 py-1.5 text-xs font-semibold">
-                {data.about?.availabilityBadge}
-              </Badge>
-              <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-semibold leading-[0.95] tracking-tight text-foreground mb-6">
-                {firstName}
-                <br />
-                <span className="italic text-primary">{lastName}</span>
-              </h1>
-              <p className="text-lg md:text-2xl text-foreground/75 max-w-2xl mb-10 leading-relaxed">
-                {data.about?.roleSummary}
-              </p>
-              <div className="flex flex-wrap gap-3">
-                <Button asChild size="lg" className="rounded-full shadow-soft">
-                  <Link href="/projects">
-                    {data.settings?.heroButtonPrimaryLabel ?? "View my work"}{" "}
-                    <ArrowUpRight className="ml-1 h-4 w-4" />
-                  </Link>
-                </Button>
-                <Button asChild size="lg" variant="outline" className="rounded-full border-ink bg-background/70">
-                  <a href="#contact">
-                    {data.settings?.heroButtonSecondaryLabel ?? "Contact me"}
-                  </a>
-                </Button>
-              </div>
+      <section
+        id="top"
+        className={`relative overflow-hidden border-b border-border ${hasHeroImage ? "min-h-[18rem] md:min-h-[22rem]" : ""}`}
+      >
+        {hasHeroImage && data.about?.profilePhoto ? (
+          <div className="absolute inset-0">
+            <SanityImage
+              image={data.about.profilePhoto}
+              alt=""
+              width={1920}
+              height={640}
+              fill
+              sizes="100vw"
+              className="object-cover object-center"
+              priority
+            />
+            <div className="absolute inset-0 z-[1] bg-gradient-to-r from-background/92 via-background/72 to-background/50" />
+            <div className="absolute inset-0 z-[1] bg-primary/8" />
+          </div>
+        ) : (
+          <div className="absolute inset-0 gradient-hero" />
+        )}
+        <div className="relative z-10 max-w-6xl mx-auto px-6 py-16 md:py-24">
+          <div className="max-w-3xl animate-fade-up">
+            <Badge variant="outline" className="mb-5 bg-background/80 border-ink rounded-full px-4 py-1.5 text-xs font-semibold">
+              {data.about?.availabilityBadge}
+            </Badge>
+            <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-semibold leading-[0.95] tracking-tight text-foreground mb-5">
+              {firstName}
+              <br />
+              <span className="italic text-primary">{lastName}</span>
+            </h1>
+            <p className="text-lg md:text-2xl text-foreground/75 max-w-2xl mb-8 leading-relaxed">
+              {data.about?.roleSummary}
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Button asChild size="lg" className="rounded-full shadow-soft">
+                <Link href="/projects">
+                  {data.settings?.heroButtonPrimaryLabel ?? "View my work"}
+                  <ArrowUpRight className="ml-1 h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="rounded-full border-ink bg-background/70">
+                <a href="#contact">
+                  {data.settings?.heroButtonSecondaryLabel ?? "Contact me"}
+                </a>
+              </Button>
             </div>
-            {data.about?.profilePhoto && (
-              <div className="animate-fade-up mx-auto md:mx-0">
-                <div className="relative w-56 lg:w-72 aspect-square rounded-3xl overflow-hidden border-2 border-ink shadow-card">
-                  <SanityImage
-                    image={data.about.profilePhoto}
-                    alt={fullName || "Profile photo"}
-                    width={600}
-                    height={600}
-                    className="w-full h-full object-cover"
-                    priority
-                  />
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </section>
 
-      <Section id="about" eyebrow={data.about?.eyebrow} title={data.about?.title}>
+      <Section id="about" title={data.about?.title ?? "About"}>
         <Link href="/about" className="block group">
-          <Card className="p-8 border-ink rounded-2xl bg-card hover:shadow-card transition-all duration-300 hover:-translate-y-1">
-            <div className="flex items-start justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <GraduationCap className="h-5 w-5 text-primary" />
-                <h3 className="font-display text-xl font-semibold">About me</h3>
-              </div>
+          <Card className="p-6 md:p-8 border-ink rounded-2xl bg-card hover:shadow-card transition-all duration-300">
+            <div className="flex items-start justify-end mb-4">
               <ArrowUpRight className="h-5 w-5 text-foreground/40 group-hover:text-primary group-hover:rotate-12 transition-all" />
             </div>
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-3 gap-6">
               <div className="md:col-span-2">
                 <p className="text-lg leading-relaxed text-foreground/80 line-clamp-4">
                   {data.about?.bio}
                 </p>
               </div>
-              <div className="p-6 border border-border rounded-2xl bg-rose-soft/40">
+              <div className="p-5 border border-border rounded-2xl bg-rose-soft/30">
+                <div className="flex items-center gap-2 mb-3">
+                  <GraduationCap className="h-4 w-4 text-primary" />
+                  <p className="font-semibold text-sm">Education</p>
+                </div>
                 <p className="font-semibold text-sm">{data.about?.education?.degree}</p>
                 <p className="text-sm text-muted-foreground">{data.about?.education?.institution}</p>
               </div>
@@ -160,8 +164,8 @@ export function PortfolioPage({ data }: Props) {
         </Link>
       </Section>
 
-      <Section id="projects" eyebrow="02 - Selected work" title="Things I've built.">
-        <div className="grid md:grid-cols-2 gap-6">
+      <Section id="projects" title="Projects">
+        <div className="grid md:grid-cols-2 gap-5">
           {previewProjects.map((project, index) => (
             <Link key={project._id} href="/projects" className="block">
               <ProjectCard project={project} index={index} />
@@ -169,24 +173,25 @@ export function PortfolioPage({ data }: Props) {
           ))}
         </div>
         {data.projects.length > 2 && (
-          <div className="mt-8 text-center">
+          <div className="mt-6 text-center">
             <Button asChild variant="outline" className="rounded-full border-ink">
               <Link href="/projects">
-                View all projects <ArrowUpRight className="ml-1 h-4 w-4" />
+                View all projects
+                <ArrowUpRight className="ml-1 h-4 w-4" />
               </Link>
             </Button>
           </div>
         )}
       </Section>
 
-      <Section id="skills" eyebrow={data.skills?.eyebrow} title={data.skills?.title}>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <Section id="skills" title={data.skills?.title ?? "Skills"}>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {data.skills?.categories?.map((category, index) => {
             const Icon = skillIconOrder[index] ?? Code2;
             return (
-              <Card key={category.name} className="p-6 border-ink rounded-2xl bg-card hover:bg-rose-soft/40 transition-colors">
-                <Icon className="h-6 w-6 text-primary mb-4" />
-                <h3 className="font-display text-lg font-semibold mb-4">{category.name}</h3>
+              <Card key={category.name} className="p-5 border-ink rounded-2xl bg-card hover:bg-rose-soft/30 transition-colors">
+                <Icon className="h-5 w-5 text-primary mb-3" />
+                <h3 className="font-display text-lg font-semibold mb-3">{category.name}</h3>
                 <div className="flex flex-wrap gap-2">
                   {category.items.map((item) => (
                     <span key={item} className="text-xs font-medium px-3 py-1.5 rounded-full bg-secondary text-secondary-foreground border border-border">
@@ -200,18 +205,14 @@ export function PortfolioPage({ data }: Props) {
         </div>
       </Section>
 
-      <Section id="certifications" eyebrow="04 - Beyond code" title="Certifications.">
+      <Section id="certifications" title="Certifications">
         <Link href="/certifications" className="block group">
-          <Card className="p-8 border-ink rounded-2xl bg-card hover:shadow-card transition-all duration-300 hover:-translate-y-1">
-            <div className="flex items-start justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <Award className="h-5 w-5 text-primary" />
-                <h3 className="font-display text-xl font-semibold">Certifications</h3>
-              </div>
+          <Card className="p-6 md:p-8 border-ink rounded-2xl bg-card hover:shadow-card transition-all duration-300">
+            <div className="flex items-start justify-end mb-4">
               <ArrowUpRight className="h-5 w-5 text-foreground/40 group-hover:text-primary group-hover:rotate-12 transition-all" />
             </div>
             {previewCertifications.length > 0 ? (
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-3">
                 {previewCertifications.map((certification) => (
                   <div
                     key={certification._id}
@@ -239,22 +240,22 @@ export function PortfolioPage({ data }: Props) {
                 )}
               </div>
             ) : (
-              <p className="text-foreground/70">View credentials and badges.</p>
+              <p className="text-foreground/70">View credentials and badges</p>
             )}
           </Card>
         </Link>
       </Section>
 
-      <Section id="more" eyebrow="05 - Beyond code" title="Leadership & languages.">
-        <div className="grid md:grid-cols-2 gap-6">
-          <Card className="p-8 border-ink rounded-2xl bg-card">
-            <div className="flex items-center gap-3 mb-6">
+      <Section id="more" title="Leadership and languages">
+        <div className="grid md:grid-cols-2 gap-5">
+          <Card className="p-6 md:p-8 border-ink rounded-2xl bg-card">
+            <div className="flex items-center gap-2 mb-5">
               <Users className="h-5 w-5 text-primary" />
-              <h3 className="font-display text-xl font-semibold">Leadership</h3>
+              <h3 className="font-display text-lg font-semibold">Leadership</h3>
             </div>
-            <div className="space-y-5">
+            <div className="space-y-4">
               {data.settings?.leadership?.map((item) => (
-                <div key={item.role} className="pb-5 border-b border-border last:border-0 last:pb-0">
+                <div key={item.role} className="pb-4 border-b border-border last:border-0 last:pb-0">
                   <div className="flex flex-wrap justify-between gap-2 mb-1">
                     <h4 className="font-semibold">{item.role}</h4>
                     <span className="text-xs text-muted-foreground font-mono">{item.period}</span>
@@ -264,15 +265,15 @@ export function PortfolioPage({ data }: Props) {
               ))}
             </div>
           </Card>
-          <Card className="p-8 border-ink rounded-2xl bg-rose-soft/40">
-            <div className="flex items-center gap-3 mb-6">
+          <Card className="p-6 md:p-8 border-ink rounded-2xl bg-rose-soft/30">
+            <div className="flex items-center gap-2 mb-5">
               <Languages className="h-5 w-5 text-primary" />
-              <h3 className="font-display text-xl font-semibold">Languages</h3>
+              <h3 className="font-display text-lg font-semibold">Languages</h3>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               {data.settings?.spokenLanguages?.map((language) => (
                 <div key={language.name} className="bg-background border border-border rounded-xl p-4">
-                  <p className="font-display text-lg font-semibold">{language.name}</p>
+                  <p className="font-display text-base font-semibold">{language.name}</p>
                   <p className="text-xs text-muted-foreground uppercase tracking-wider">{language.level}</p>
                 </div>
               ))}
@@ -281,18 +282,17 @@ export function PortfolioPage({ data }: Props) {
         </div>
       </Section>
 
-      <section id="contact" className="py-20 md:py-28 px-6">
+      <section id="contact" className="py-12 md:py-16 px-6 border-t border-border">
         <div className="max-w-6xl mx-auto">
-          <Card className="border-ink rounded-3xl gradient-hero p-10 md:p-16 text-center shadow-card">
-            <p className="text-xs uppercase tracking-[0.25em] text-primary font-semibold mb-3">
-              {data.contact?.eyebrow}
-            </p>
-            <h2 className="font-display text-4xl md:text-6xl font-semibold mb-6 leading-tight">
-              {data.contact?.title}
+          <Card className="border-ink rounded-3xl bg-card p-8 md:p-12 text-center shadow-soft">
+            <h2 className="font-display text-3xl md:text-5xl font-semibold mb-4 leading-tight">
+              {formatSectionTitle(data.contact?.title) ?? "Contact"}
             </h2>
-            <p className="text-lg text-foreground/75 max-w-xl mx-auto mb-10">
-              {data.contact?.subtitle}
-            </p>
+            {data.contact?.subtitle && (
+              <p className="text-base md:text-lg text-foreground/75 max-w-xl mx-auto mb-8">
+                {data.contact.subtitle}
+              </p>
+            )}
 
             <form onSubmit={handleSubmit} className="max-w-xl mx-auto space-y-4 mb-8 text-left">
               <Input name="name" placeholder="Your name" required />
@@ -304,7 +304,7 @@ export function PortfolioPage({ data }: Props) {
               {status && <p className="text-sm text-center text-foreground/70">{status}</p>}
             </form>
 
-            <div className="flex flex-wrap justify-center gap-3 mb-10">
+            <div className="flex flex-wrap justify-center gap-3 mb-8">
               <Button asChild size="lg" className="rounded-full">
                 <a href={`mailto:${data.contact?.email ?? ""}`}>
                   <Mail className="mr-2 h-4 w-4" />
@@ -328,7 +328,7 @@ export function PortfolioPage({ data }: Props) {
                 </Button>
               )}
             </div>
-            <div className="grid sm:grid-cols-3 gap-4 max-w-2xl mx-auto text-sm">
+            <div className="grid sm:grid-cols-3 gap-4 max-w-2xl mx-auto text-sm border-t border-border pt-8">
               <div className="flex items-center justify-center gap-2 text-foreground/70">
                 <MapPin className="h-4 w-4 text-primary" /> {data.contact?.location}
               </div>

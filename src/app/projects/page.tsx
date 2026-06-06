@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { BackLink } from "@/components/portfolio/back-link";
+import { PageBanner } from "@/components/portfolio/page-banner";
 import { ProjectCard } from "@/components/portfolio/project-card";
 import { SiteFooter } from "@/components/portfolio/site-footer";
 import { SiteHeader } from "@/components/portfolio/site-header";
@@ -33,31 +34,17 @@ export default async function ProjectsPage() {
         contactEmail={meta.contact?.email}
       />
 
-      <section className="relative gradient-hero overflow-hidden">
-        <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-rose-bright/30 blur-3xl" />
-        <div className="relative max-w-6xl mx-auto px-6 py-20 md:py-28">
-          <p className="text-xs uppercase tracking-[0.25em] text-primary font-semibold mb-3">
-            02 - Selected work
-          </p>
-          <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-semibold text-foreground">
-            Things I&apos;ve built.
-          </h1>
-        </div>
-      </section>
+      <PageBanner title="Projects" />
 
-      <Section id="projects" eyebrow="02 - Selected work" title="All projects.">
-        <div className="grid md:grid-cols-2 gap-6">
+      <Section id="projects" bordered={false}>
+        <div className="grid md:grid-cols-2 gap-5">
           {projects.map((project, index) => (
             <ProjectCard key={project._id} project={project} index={index} showLinks />
           ))}
         </div>
       </Section>
 
-      <div className="max-w-6xl mx-auto px-6 pb-12">
-        <Link href="/" className="text-sm text-primary hover:underline">
-          ← Back to home
-        </Link>
-      </div>
+      <BackLink />
 
       <SiteFooter
         footerCopyright={meta.settings?.footerCopyright}
