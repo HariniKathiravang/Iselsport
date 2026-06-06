@@ -43,7 +43,7 @@ export function PageBanner({
             className="object-cover object-center z-0"
             priority
           />
-          <div className="absolute inset-0 z-[1] bg-gradient-to-r from-background/92 via-background/72 to-background/55" />
+          <div className="absolute inset-0 z-[1] bg-gradient-to-r from-background/40 via-background/72 to-background/55" />
           <div className="absolute inset-0 z-[1] bg-primary/8" />
         </>
       )}
