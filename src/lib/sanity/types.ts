@@ -19,6 +19,9 @@ export type AboutSection = {
   lastName?: string;
   roleSummary?: string;
   bio?: string;
+  profilePhoto?: Image;
+  bannerImage?: Image;
+  professionalPhoto?: Image;
   education?: {
     degree?: string;
     institution?: string;
@@ -48,6 +51,15 @@ export type ContactInfo = {
   linkedinUrl?: string;
 };
 
+export type Certification = {
+  _id: string;
+  title: string;
+  issuer: string;
+  badge: Image;
+  link?: string;
+  order?: number;
+};
+
 export type SiteSettings = {
   siteName?: string;
   heroButtonPrimaryLabel?: string;
@@ -69,6 +81,7 @@ export type SiteSettings = {
 export type PortfolioData = {
   about: AboutSection | null;
   projects: Project[];
+  certifications: Certification[];
   skills: SkillsSection | null;
   contact: ContactInfo | null;
   settings: SiteSettings | null;

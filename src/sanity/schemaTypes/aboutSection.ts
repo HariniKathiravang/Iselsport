@@ -13,6 +13,27 @@ export const aboutSectionType = defineType({
     defineField({ name: "roleSummary", title: "Hero Summary", type: "text", validation: (Rule) => Rule.required() }),
     defineField({ name: "bio", title: "About Bio", type: "text", validation: (Rule) => Rule.required() }),
     defineField({
+      name: "profilePhoto",
+      title: "Profile Photo (Hero)",
+      type: "image",
+      options: { hotspot: true },
+      description: "Displayed in the homepage hero area.",
+    }),
+    defineField({
+      name: "bannerImage",
+      title: "Banner Image (About Page)",
+      type: "image",
+      options: { hotspot: true },
+      description: "Wide horizontal image for the About page header.",
+    }),
+    defineField({
+      name: "professionalPhoto",
+      title: "Professional Photo (About Page)",
+      type: "image",
+      options: { hotspot: true },
+      description: "Square professional photo displayed beside About content.",
+    }),
+    defineField({
       name: "education",
       title: "Education",
       type: "object",

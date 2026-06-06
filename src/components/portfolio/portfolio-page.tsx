@@ -1,13 +1,17 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useState } from "react";
+import Link from "next/link";
 import emailjs from "@emailjs/browser";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { urlFor } from "@/lib/sanity/image";
+import { ProjectCard } from "@/components/portfolio/project-card";
+import { SanityImage } from "@/components/portfolio/sanity-image";
+import { SiteFooter } from "@/components/portfolio/site-footer";
+import { SiteHeader } from "@/components/portfolio/site-header";
 import type { PortfolioData } from "@/lib/sanity/types";
 import { Section } from "@/components/portfolio/section";
 import {
@@ -26,7 +30,6 @@ import {
   Users,
   Wrench,
 } from "lucide-react";
-import Image from "next/image";
 
 type Props = {
   data: PortfolioData;
@@ -40,15 +43,8 @@ export function PortfolioPage({ data }: Props) {
   const lastName = data.about?.lastName ?? "";
   const fullName = `${firstName} ${lastName}`.trim();
 
-  const navItems = useMemo(
-    () => [
-      { href: "#about", label: "About" },
-      { href: "#projects", label: "Projects" },
-      { href: "#skills", label: "Skills" },
-      { href: "#contact", label: "Contact" },
-    ],
-    [],
-  );
+  const previewProjects = (data.projects ?? []).slice(0, 2);
+  const previewCertifications = (data.certifications ?? []).slice(0, 3);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -84,116 +80,103 @@ export function PortfolioPage({ data }: Props) {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-background/80 border-b border-border">
-        <nav className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <a href="#top" className="font-display text-xl font-semibold tracking-tight">
-            {data.settings?.siteName ?? fullName ?? "Portfolio"}
-            <span className="text-primary">.</span>
-          </a>
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium">
-            {navItems.map((item) => (
-              <a key={item.href} href={item.href} className="hover:text-primary transition-colors">
-                {item.label}
-              </a>
-            ))}
-          </div>
-          <Button asChild size="sm" className="rounded-full">
-            <a href={`mailto:${data.contact?.email ?? ""}`}>Get in touch</a>
-          </Button>
-        </nav>
-      </header>
+      <SiteHeader
+        siteName={data.settings?.siteName}
+        fullName={fullName}
+        contactEmail={data.contact?.email}
+      />
 
       <section id="top" className="relative gradient-hero overflow-hidden">
         <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-rose-bright/30 blur-3xl" />
         <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-primary/20 blur-3xl" />
         <div className="relative max-w-6xl mx-auto px-6 py-24 md:py-36">
-          <div className="max-w-3xl animate-fade-up">
-            <Badge variant="outline" className="mb-6 bg-background/80 border-ink rounded-full px-4 py-1.5 text-xs font-semibold">
-              {data.about?.availabilityBadge}
-            </Badge>
-            <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-semibold leading-[0.95] tracking-tight text-foreground mb-6">
-              {firstName}
-              <br />
-              <span className="italic text-primary">{lastName}</span>
-            </h1>
-            <p className="text-lg md:text-2xl text-foreground/75 max-w-2xl mb-10 leading-relaxed">
-              {data.about?.roleSummary}
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Button asChild size="lg" className="rounded-full shadow-soft">
-                <a href="#projects">
-                  {data.settings?.heroButtonPrimaryLabel ?? "View my work"}{" "}
-                  <ArrowUpRight className="ml-1 h-4 w-4" />
-                </a>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-full border-ink bg-background/70">
-                <a href="#contact">
-                  {data.settings?.heroButtonSecondaryLabel ?? "Contact me"}
-                </a>
-              </Button>
+          <div className="grid md:grid-cols-[1fr_auto] gap-12 items-center">
+            <div className="max-w-3xl animate-fade-up">
+              <Badge variant="outline" className="mb-6 bg-background/80 border-ink rounded-full px-4 py-1.5 text-xs font-semibold">
+                {data.about?.availabilityBadge}
+              </Badge>
+              <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-semibold leading-[0.95] tracking-tight text-foreground mb-6">
+                {firstName}
+                <br />
+                <span className="italic text-primary">{lastName}</span>
+              </h1>
+              <p className="text-lg md:text-2xl text-foreground/75 max-w-2xl mb-10 leading-relaxed">
+                {data.about?.roleSummary}
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Button asChild size="lg" className="rounded-full shadow-soft">
+                  <Link href="/projects">
+                    {data.settings?.heroButtonPrimaryLabel ?? "View my work"}{" "}
+                    <ArrowUpRight className="ml-1 h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="rounded-full border-ink bg-background/70">
+                  <a href="#contact">
+                    {data.settings?.heroButtonSecondaryLabel ?? "Contact me"}
+                  </a>
+                </Button>
+              </div>
             </div>
+            {data.about?.profilePhoto && (
+              <div className="animate-fade-up mx-auto md:mx-0">
+                <div className="relative w-56 lg:w-72 aspect-square rounded-3xl overflow-hidden border-2 border-ink shadow-card">
+                  <SanityImage
+                    image={data.about.profilePhoto}
+                    alt={fullName || "Profile photo"}
+                    width={600}
+                    height={600}
+                    className="w-full h-full object-cover"
+                    priority
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>
 
       <Section id="about" eyebrow={data.about?.eyebrow} title={data.about?.title}>
-        <div className="grid md:grid-cols-3 gap-8">
-          <div className="md:col-span-2">
-            <p className="text-lg md:text-xl leading-relaxed text-foreground/80">
-              {data.about?.bio}
-            </p>
-          </div>
-          <Card className="p-6 border-ink rounded-2xl shadow-soft bg-rose-soft/40">
-            <div className="flex items-center gap-3 mb-4">
-              <GraduationCap className="h-5 w-5 text-primary" />
-              <h3 className="font-display text-xl font-semibold">Education</h3>
+        <Link href="/about" className="block group">
+          <Card className="p-8 border-ink rounded-2xl bg-card hover:shadow-card transition-all duration-300 hover:-translate-y-1">
+            <div className="flex items-start justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <GraduationCap className="h-5 w-5 text-primary" />
+                <h3 className="font-display text-xl font-semibold">About me</h3>
+              </div>
+              <ArrowUpRight className="h-5 w-5 text-foreground/40 group-hover:text-primary group-hover:rotate-12 transition-all" />
             </div>
-            <p className="font-semibold text-sm">{data.about?.education?.degree}</p>
-            <p className="text-sm text-muted-foreground">{data.about?.education?.institution}</p>
-            <div className="mt-4 pt-4 border-t border-border space-y-1 text-sm">
-              <div className="flex justify-between"><span className="text-muted-foreground">CGPA</span><span className="font-semibold">{data.about?.education?.cgpa}</span></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">12th Grade</span><span className="font-semibold">{data.about?.education?.twelfthGrade}</span></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">10th Grade</span><span className="font-semibold">{data.about?.education?.tenthGrade}</span></div>
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="md:col-span-2">
+                <p className="text-lg leading-relaxed text-foreground/80 line-clamp-4">
+                  {data.about?.bio}
+                </p>
+              </div>
+              <div className="p-6 border border-border rounded-2xl bg-rose-soft/40">
+                <p className="font-semibold text-sm">{data.about?.education?.degree}</p>
+                <p className="text-sm text-muted-foreground">{data.about?.education?.institution}</p>
+              </div>
             </div>
           </Card>
-        </div>
+        </Link>
       </Section>
 
       <Section id="projects" eyebrow="02 - Selected work" title="Things I've built.">
         <div className="grid md:grid-cols-2 gap-6">
-          {data.projects.map((project, index) => (
-            <Card key={project._id} className="group p-8 border-ink rounded-2xl bg-card hover:shadow-card transition-all duration-300 hover:-translate-y-1">
-              {(() => {
-                if (!project.image) return null;
-                const imageBuilder = urlFor(project.image);
-                if (!imageBuilder) return null;
-                const imageUrl = imageBuilder.width(900).height(600).fit("crop").url();
-                if (!imageUrl) return null;
-
-                return (
-                <div className="mb-4 overflow-hidden rounded-xl border border-border">
-                  <Image
-                    src={imageUrl}
-                    alt={project.title}
-                    width={900}
-                    height={600}
-                    className="h-48 w-full object-cover"
-                  />
-                </div>
-                );
-              })()}
-              <div className="flex items-start justify-between mb-4">
-                <span className="text-xs font-mono text-primary">0{index + 1}</span>
-                <ArrowUpRight className="h-5 w-5 text-foreground/40 group-hover:text-primary group-hover:rotate-12 transition-all" />
-              </div>
-              <h3 className="font-display text-2xl font-semibold mb-2">{project.title}</h3>
-              <p className="text-xs uppercase tracking-wider text-primary font-semibold mb-4">
-                {project.stack?.join(" · ")}
-              </p>
-              <p className="text-foreground/75 leading-relaxed">{project.description}</p>
-            </Card>
+          {previewProjects.map((project, index) => (
+            <Link key={project._id} href="/projects" className="block">
+              <ProjectCard project={project} index={index} />
+            </Link>
           ))}
         </div>
+        {data.projects.length > 2 && (
+          <div className="mt-8 text-center">
+            <Button asChild variant="outline" className="rounded-full border-ink">
+              <Link href="/projects">
+                View all projects <ArrowUpRight className="ml-1 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        )}
       </Section>
 
       <Section id="skills" eyebrow={data.skills?.eyebrow} title={data.skills?.title}>
@@ -217,22 +200,53 @@ export function PortfolioPage({ data }: Props) {
         </div>
       </Section>
 
-      <Section id="more" eyebrow="04 - Beyond code" title="Certifications & leadership.">
-        <div className="grid md:grid-cols-2 gap-6">
-          <Card className="p-8 border-ink rounded-2xl bg-card">
-            <div className="flex items-center gap-3 mb-6">
-              <Award className="h-5 w-5 text-primary" />
-              <h3 className="font-display text-xl font-semibold">Certifications</h3>
+      <Section id="certifications" eyebrow="04 - Beyond code" title="Certifications.">
+        <Link href="/certifications" className="block group">
+          <Card className="p-8 border-ink rounded-2xl bg-card hover:shadow-card transition-all duration-300 hover:-translate-y-1">
+            <div className="flex items-start justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <Award className="h-5 w-5 text-primary" />
+                <h3 className="font-display text-xl font-semibold">Certifications</h3>
+              </div>
+              <ArrowUpRight className="h-5 w-5 text-foreground/40 group-hover:text-primary group-hover:rotate-12 transition-all" />
             </div>
-            <ul className="space-y-3">
-              {data.settings?.certifications?.map((certification) => (
-                <li key={certification} className="flex gap-3 text-foreground/80">
-                  <span className="text-primary mt-1.5 h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
-                  <span>{certification}</span>
-                </li>
-              ))}
-            </ul>
+            {previewCertifications.length > 0 ? (
+              <div className="flex flex-wrap gap-4">
+                {previewCertifications.map((certification) => (
+                  <div
+                    key={certification._id}
+                    className="flex items-center gap-3 bg-background border border-border rounded-xl px-4 py-3"
+                  >
+                    <div className="w-10 h-10 flex-shrink-0 overflow-hidden rounded-lg border border-border bg-background p-1">
+                      <SanityImage
+                        image={certification.badge}
+                        alt={certification.title}
+                        width={80}
+                        height={80}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-sm">{certification.title}</p>
+                      <p className="text-xs text-muted-foreground">{certification.issuer}</p>
+                    </div>
+                  </div>
+                ))}
+                {data.certifications.length > 3 && (
+                  <p className="text-sm text-muted-foreground self-center">
+                    +{data.certifications.length - 3} more
+                  </p>
+                )}
+              </div>
+            ) : (
+              <p className="text-foreground/70">View credentials and badges.</p>
+            )}
           </Card>
+        </Link>
+      </Section>
+
+      <Section id="more" eyebrow="05 - Beyond code" title="Leadership & languages.">
+        <div className="grid md:grid-cols-2 gap-6">
           <Card className="p-8 border-ink rounded-2xl bg-card">
             <div className="flex items-center gap-3 mb-6">
               <Users className="h-5 w-5 text-primary" />
@@ -250,22 +264,21 @@ export function PortfolioPage({ data }: Props) {
               ))}
             </div>
           </Card>
+          <Card className="p-8 border-ink rounded-2xl bg-rose-soft/40">
+            <div className="flex items-center gap-3 mb-6">
+              <Languages className="h-5 w-5 text-primary" />
+              <h3 className="font-display text-xl font-semibold">Languages</h3>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              {data.settings?.spokenLanguages?.map((language) => (
+                <div key={language.name} className="bg-background border border-border rounded-xl p-4">
+                  <p className="font-display text-lg font-semibold">{language.name}</p>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider">{language.level}</p>
+                </div>
+              ))}
+            </div>
+          </Card>
         </div>
-
-        <Card className="mt-6 p-8 border-ink rounded-2xl bg-rose-soft/40">
-          <div className="flex items-center gap-3 mb-6">
-            <Languages className="h-5 w-5 text-primary" />
-            <h3 className="font-display text-xl font-semibold">Languages</h3>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {data.settings?.spokenLanguages?.map((language) => (
-              <div key={language.name} className="bg-background border border-border rounded-xl p-4">
-                <p className="font-display text-lg font-semibold">{language.name}</p>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider">{language.level}</p>
-              </div>
-            ))}
-          </div>
-        </Card>
       </Section>
 
       <section id="contact" className="py-20 md:py-28 px-6">
@@ -330,12 +343,10 @@ export function PortfolioPage({ data }: Props) {
         </div>
       </section>
 
-      <footer className="border-t border-border py-8 px-6">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-muted-foreground">
-          <p>{data.settings?.footerCopyright}</p>
-          <p className="font-mono text-xs">{data.settings?.footerTagline}</p>
-        </div>
-      </footer>
+      <SiteFooter
+        footerCopyright={data.settings?.footerCopyright}
+        footerTagline={data.settings?.footerTagline}
+      />
     </div>
   );
 }
