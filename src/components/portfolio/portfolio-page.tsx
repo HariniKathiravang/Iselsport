@@ -111,6 +111,8 @@ export function PortfolioPage({ data }: Props) {
         )}
         <div className="relative z-10 max-w-6xl mx-auto px-6 py-16 md:py-24">
         <div className="max-w-3xl animate-fade-up">
+  <div className="inline-flex flex-col gap-6 bg-white/85 backdrop-blur-md border border-white/30 rounded-3xl p-8 shadow-2xl">
+  </div>
         <div className="inline-flex flex-col gap-5 bg-background/85 backdrop-blur-md border border-border rounded-3xl p-8 shadow-xl">
             <Badge variant="outline" className="mb-5 bg-background/80 border-ink rounded-full px-4 py-1.5 text-xs font-semibold">
               {data.about?.availabilityBadge}
