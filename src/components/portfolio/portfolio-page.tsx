@@ -110,7 +110,8 @@ export function PortfolioPage({ data }: Props) {
           <div className="absolute inset-0 gradient-hero" />
         )}
         <div className="relative z-10 max-w-6xl mx-auto px-6 py-16 md:py-24">
-          <div className="max-w-3xl animate-fade-up">
+        <div className="max-w-3xl animate-fade-up">
+        <div className="inline-flex flex-col gap-5 bg-background/85 backdrop-blur-md border border-border rounded-3xl p-8 shadow-xl">
             <Badge variant="outline" className="mb-5 bg-background/80 border-ink rounded-full px-4 py-1.5 text-xs font-semibold">
               {data.about?.availabilityBadge}
             </Badge>
@@ -124,6 +125,8 @@ export function PortfolioPage({ data }: Props) {
 <p className="inline-block bg-white/85 text-black px-4 py-3 rounded-xl text-lg md:text-2xl max-w-2xl mb-8 leading-relaxed">
   {data.about?.roleSummary}
 </p>
+</div>
+
             <div className="flex flex-wrap gap-3">
               <Button asChild size="lg" className="rounded-full shadow-soft">
                 <Link href="/projects">
