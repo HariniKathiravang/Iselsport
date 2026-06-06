@@ -48,7 +48,8 @@ export function PageBanner({
         </>
       )}
      <div className="relative z-10 max-w-6xl mx-auto px-6 py-10 md:py-14">
-  <div className="inline-block rounded-xl bg-background/80 backdrop-blur-sm border border-border px-8 py-5 shadow-soft">
+  <div className="bg-white p-6 rounded-xl">
+
     {formattedTitle && (
       <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground">
         {formattedTitle}
