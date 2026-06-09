@@ -107,7 +107,7 @@ export function PortfolioPage({ data }: Props) {
       />
 
       {/* Adjust these values to control image visibility */}
-      <div className="absolute inset-0 z-[1] bg-gradient-to-r from-background/55 via-background/30 to-background/10" />
+      <div className="absolute inset-0 z-[1] bg-gradient-to-r from-background/55 via-background/25 to-background/0" />
       <div className="absolute inset-0 z-[1] bg-primary/5" />
     </div>
   ) : (
