@@ -87,64 +87,74 @@ export function PortfolioPage({ data }: Props) {
         contactEmail={data.contact?.email}
       />
 
-      <section
-        id="top"
-        className={`relative overflow-hidden border-b border-border ${hasHeroImage ? "min-h-[18rem] md:min-h-[22rem]" : ""}`}
-      >
-        {hasHeroImage && data.about?.profilePhoto ? (
-          <div className="absolute inset-0">
-            <SanityImage
-              image={data.about.profilePhoto}
-              alt=""
-              width={1920}
-              height={640}
-              fill
-              sizes="100vw"
-              className="object-cover object-center"
-              priority
-            />
-            <div className="absolute inset-0 z-[1] bg-gradient-to-r from-background/92 via-background/72 to-background/50" />
-            <div className="absolute inset-0 z-[1] bg-primary/8" />
-          </div>
-        ) : (
-          <div className="absolute inset-0 gradient-hero" />
-        )}
-        <div className="relative z-10 max-w-6xl mx-auto px-6 py-16 md:py-24">
-        <div className="max-w-3xl animate-fade-up">
-  <div className="inline-flex flex-col gap-6 bg-white/85 backdrop-blur-md border border-white/30 rounded-3xl p-8 shadow-2xl">
-  </div>
-        <div className="inline-flex flex-col gap-5 bg-background/85 backdrop-blur-md border border-border rounded-3xl p-8 shadow-xl">
-            <Badge variant="outline" className="mb-5 bg-background/80 border-ink rounded-full px-4 py-1.5 text-xs font-semibold">
-              {data.about?.availabilityBadge}
-            </Badge>
-            <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-semibold leading-[0.95] tracking-tight mb-5">
-  <span className="inline-block bg-white/90 text-black px-4 py-2 rounded-xl">
-    {firstName}
-    <br />
-    <span className="italic text-primary">{lastName}</span>
-  </span>
-</h1>
-<p className="inline-block bg-white/85 text-black px-4 py-3 rounded-xl text-lg md:text-2xl max-w-2xl mb-8 leading-relaxed">
-  {data.about?.roleSummary}
-</p>
-</div>
+<section
+  id="top"
+  className={`relative overflow-hidden border-b border-border ${
+    hasHeroImage ? "min-h-[18rem] md:min-h-[22rem]" : ""
+  }`}
+>
+  {hasHeroImage && data.about?.profilePhoto ? (
+    <div className="absolute inset-0">
+      <SanityImage
+        image={data.about.profilePhoto}
+        alt=""
+        width={1920}
+        height={640}
+        fill
+        sizes="100vw"
+        className="object-cover object-center opacity-90"
+        priority
+      />
 
-            <div className="flex flex-wrap gap-3">
-              <Button asChild size="lg" className="rounded-full shadow-soft">
-                <Link href="/projects">
-                  {data.settings?.heroButtonPrimaryLabel ?? "View my work"}
-                  <ArrowUpRight className="ml-1 h-4 w-4" />
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-full border-ink bg-background/70">
-                <a href="#contact">
-                  {data.settings?.heroButtonSecondaryLabel ?? "Contact me"}
-                </a>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Adjust these values to control image visibility */}
+      <div className="absolute inset-0 z-[1] bg-gradient-to-r from-background/55 via-background/30 to-background/10" />
+      <div className="absolute inset-0 z-[1] bg-primary/5" />
+    </div>
+  ) : (
+    <div className="absolute inset-0 gradient-hero" />
+  )}
+
+  <div className="relative z-10 max-w-6xl mx-auto px-6 py-16 md:py-24">
+    <div className="max-w-3xl animate-fade-up flex flex-col items-start">
+      <Badge
+        variant="outline"
+        className="mb-5 bg-background/80 border-ink rounded-full px-4 py-1.5 text-xs font-semibold"
+      >
+        {data.about?.availabilityBadge}
+      </Badge>
+
+      <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-semibold leading-[0.95] tracking-tight text-foreground mb-5">
+        {firstName}
+        <br />
+        <span className="italic text-primary">{lastName}</span>
+      </h1>
+
+      <p className="text-lg md:text-2xl text-foreground/80 max-w-2xl mb-8 leading-relaxed">
+        {data.about?.roleSummary}
+      </p>
+
+      <div className="flex flex-wrap gap-3">
+        <Button asChild size="lg" className="rounded-full shadow-soft">
+          <Link href="/projects">
+            {data.settings?.heroButtonPrimaryLabel ?? "View my work"}
+            <ArrowUpRight className="ml-1 h-4 w-4" />
+          </Link>
+        </Button>
+
+        <Button
+          asChild
+          size="lg"
+          variant="outline"
+          className="rounded-full border-ink bg-background/70"
+        >
+          <a href="#contact">
+            {data.settings?.heroButtonSecondaryLabel ?? "Contact me"}
+          </a>
+        </Button>
+      </div>
+    </div>
+  </div>
+</section>
 
       <Section id="about" title={data.about?.title ?? "About"}>
         <Link href="/about" className="block group">
