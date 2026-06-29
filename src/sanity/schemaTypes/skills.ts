@@ -5,7 +5,7 @@ export const skillsType = defineType({
   title: "Skills",
   type: "document",
   fields: [
-    defineField({ name: "eyebrow", title: "Section Label", type: "string", initialValue: "03 - Toolkit" }),
+    defineField({ name: "eyebrow", title: "Section Label", type: "string", initialValue: "Toolkit" }),
     defineField({ name: "title", title: "Section Title", type: "string", validation: (Rule) => Rule.required() }),
     defineField({
       name: "categories",
