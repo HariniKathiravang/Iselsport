@@ -6,6 +6,7 @@ export type Project = {
   stack: string[];
   description: string;
   image?: Image;
+  screenshots?: Image[];
   projectUrl?: string;
   repoUrl?: string;
   order?: number;

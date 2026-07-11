@@ -1,8 +1,13 @@
+"use client";
+
+import Image from "next/image";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowUpRight, ExternalLink, Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { SanityImage } from "@/components/portfolio/sanity-image";
+import { urlFor } from "@/lib/sanity/image";
 import type { Project } from "@/lib/sanity/types";
+import type { Image as SanityImageType } from "sanity";
 
 type Props = {
   project: Project;
@@ -10,18 +15,59 @@ type Props = {
   showLinks?: boolean;
 };
 
+function getImageUrls(images: SanityImageType[]) {
+  return images
+    .map((image) => urlFor(image)?.width(900).height(600).fit("crop").url())
+    .filter((url): url is string => Boolean(url));
+}
+
 export function ProjectCard({ project, index, showLinks = false }: Props) {
+  const [hovered, setHovered] = useState(false);
+  const [slideIndex, setSlideIndex] = useState(0);
+
+  const images = useMemo(() => {
+    const gallery = project.screenshots?.length
+      ? project.screenshots
+      : project.image
+        ? [project.image]
+        : [];
+    return getImageUrls(gallery);
+  }, [project.image, project.screenshots]);
+
+  useEffect(() => {
+    if (!hovered || images.length <= 1) return;
+
+    const interval = window.setInterval(() => {
+      setSlideIndex((current) => (current + 1) % images.length);
+    }, 1800);
+
+    return () => window.clearInterval(interval);
+  }, [hovered, images.length]);
+
+  useEffect(() => {
+    if (!hovered) setSlideIndex(0);
+  }, [hovered]);
+
   return (
-    <Card className="group p-6 md:p-8 border-ink rounded-2xl bg-card hover:shadow-card transition-all duration-300">
-      {project.image && (
-        <div className="mb-4 overflow-hidden rounded-xl border border-border">
-          <SanityImage
-            image={project.image}
-            alt={project.title}
-            width={900}
-            height={600}
-            className="h-48 w-full object-cover"
-          />
+    <Card
+      className="group p-6 md:p-8 border-ink rounded-2xl bg-card hover:shadow-card transition-all duration-300"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {images.length > 0 && (
+        <div className="mb-4 overflow-hidden rounded-xl border border-border relative h-48">
+          {images.map((src, imageIndex) => (
+            <Image
+              key={src}
+              src={src}
+              alt={`${project.title} screenshot ${imageIndex + 1}`}
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className={`object-cover transition-opacity duration-500 ${
+                imageIndex === slideIndex ? "opacity-100" : "opacity-0"
+              }`}
+            />
+          ))}
         </div>
       )}
       <div className="flex items-start justify-between mb-4">

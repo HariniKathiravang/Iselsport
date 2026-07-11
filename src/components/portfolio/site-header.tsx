@@ -19,10 +19,9 @@ const navItems: NavItem[] = [
 type Props = {
   siteName?: string;
   fullName?: string;
-  contactEmail?: string;
 };
 
-export function SiteHeader({ siteName, fullName, contactEmail }: Props) {
+export function SiteHeader({ siteName, fullName }: Props) {
   return (
     <header className="sticky top-0 z-50 backdrop-blur-md bg-background/80 border-b border-border">
       <nav className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -38,7 +37,7 @@ export function SiteHeader({ siteName, fullName, contactEmail }: Props) {
           ))}
         </div>
         <Button asChild size="sm" className="rounded-full">
-          <a href={`mailto:${contactEmail ?? ""}`}>Get in touch</a>
+          <Link href="/#contact">Get in touch</Link>
         </Button>
       </nav>
     </header>

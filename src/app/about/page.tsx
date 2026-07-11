@@ -28,11 +28,10 @@ export default async function AboutPage() {
   const fullName = `${firstName} ${lastName}`.trim();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <SiteHeader
         siteName={meta.settings?.siteName}
         fullName={fullName}
-        contactEmail={meta.contact?.email}
       />
 
       <PageBanner title={about?.title ?? "About"} image={about?.bannerImage} />

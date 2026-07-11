@@ -16,6 +16,13 @@ export const projectType = defineType({
     }),
     defineField({ name: "description", title: "Description", type: "text", validation: (Rule) => Rule.required() }),
     defineField({ name: "image", title: "Project Image", type: "image", options: { hotspot: true } }),
+    defineField({
+      name: "screenshots",
+      title: "Screenshots",
+      type: "array",
+      of: [{ type: "image", options: { hotspot: true } }],
+      description: "Additional screenshots shown in a hover slideshow on project cards.",
+    }),
     defineField({ name: "projectUrl", title: "Live Project URL", type: "url" }),
     defineField({ name: "repoUrl", title: "Repository URL", type: "url" }),
   ],
